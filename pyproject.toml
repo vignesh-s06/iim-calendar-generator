@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iim-calendar-generator"
+version = "0.1.0"
+description = "Generate an ICS calendar file from an IIM timetable PDF."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pypdf>=4.0.0",
+    "icalendar>=5.0.0",
+    "python-dateutil>=2.8.2",
+]
+
+[tool.setuptools.packages.find]
+include = ["src*"]
