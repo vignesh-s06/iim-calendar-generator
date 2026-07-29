@@ -98,6 +98,26 @@ Validate a custom output file:
 python generate_calendar.py --validate --output output/custom-calendar.ics
 ```
 
+## Reminder Subjects
+
+Reminders are attached only for subjects listed in `REMINDER_SUBJECTS` in `src/config.py`.
+
+To change which subjects receive reminders, edit:
+
+```python
+REMINDER_SUBJECTS = frozenset(
+    {
+        "CFFM",
+        "CS(S2)",
+        "DMV",
+        "GTBL(S2)",
+        "MHCGH",
+    }
+)
+```
+
+All subjects still generate calendar events. Subjects not listed in `REMINDER_SUBJECTS` are generated without `VALARM` reminders.
+
 ## Testing
 
 Install the project requirements, then run:

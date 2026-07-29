@@ -13,6 +13,7 @@ from src.config import (
     REMINDER_ACTION,
     REMINDER_DESCRIPTION,
     REMINDER_MINUTES,
+    REMINDER_SUBJECTS,
     TIMEZONE,
 )
 from src.utils import ScheduleItem
@@ -24,6 +25,7 @@ def build_calendar(
     location: str = LOCATION,
     timezone: str | None = TIMEZONE,
     reminder_minutes: int | None = REMINDER_MINUTES,
+    reminder_subjects: frozenset[str] = REMINDER_SUBJECTS,
 ) -> Calendar:
     """Build an iCalendar document from parsed schedule items."""
     calendar = Calendar()
@@ -32,7 +34,7 @@ def build_calendar(
     calendar.add("x-wr-calname", calendar_name)
 
     for item in items:
-        calendar.add_component(build_event(item, location, timezone, reminder_minutes))
+        calendar.add_component(build_event(item, location, timezone, reminder_minutes, reminder_subjects))
 
     return calendar
 
@@ -42,6 +44,7 @@ def build_event(
     location: str = LOCATION,
     timezone: str | None = TIMEZONE,
     reminder_minutes: int | None = REMINDER_MINUTES,
+    reminder_subjects: frozenset[str] = REMINDER_SUBJECTS,
 ) -> Event:
     """Build one iCalendar event from a parsed schedule item."""
     event = Event()
@@ -53,7 +56,7 @@ def build_event(
     if location:
         event.add("location", location)
 
-    if reminder_minutes is not None:
+    if reminder_minutes is not None and item.title in reminder_subjects:
         event.add_component(_build_alarm(reminder_minutes))
 
     return event

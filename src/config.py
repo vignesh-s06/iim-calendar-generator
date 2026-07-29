@@ -11,6 +11,15 @@ CALENDAR_PRODID: str = "-//IIM Calendar Generator//EN"
 CALENDAR_VERSION: str = "2.0"
 LOCATION: str = "NAB G08"
 REMINDER_MINUTES: int | None = 15
+REMINDER_SUBJECTS: frozenset[str] = frozenset(
+    {
+        "CFFM",
+        "CS(S2)",
+        "DMV",
+        "GTBL(S2)",
+        "MHCGH",
+    }
+)
 TIMEZONE: str | None = None
 REMINDER_ACTION: str = "DISPLAY"
 REMINDER_DESCRIPTION: str = "Reminder"

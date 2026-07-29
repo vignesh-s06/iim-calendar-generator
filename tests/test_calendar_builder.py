@@ -38,3 +38,29 @@ def test_build_calendar_adds_events_and_name() -> None:
 
     assert str(parsed_calendar.get("x-wr-calname")) == CALENDAR_NAME
     assert len(events) == 2
+
+
+def test_build_event_adds_alarm_for_reminder_subject() -> None:
+    """Attach a VALARM when the subject is configured for reminders."""
+    item = ScheduleItem(
+        title="CFFM",
+        start=datetime(2026, 7, 17, 9, 0),
+        end=datetime(2026, 7, 17, 10, 30),
+    )
+
+    event = build_event(item)
+
+    assert any(component.name == "VALARM" for component in event.subcomponents)
+
+
+def test_build_event_skips_alarm_for_non_reminder_subject() -> None:
+    """Skip VALARM when the subject is not configured for reminders."""
+    item = ScheduleItem(
+        title="SCM(S2)",
+        start=datetime(2026, 7, 17, 9, 0),
+        end=datetime(2026, 7, 17, 10, 30),
+    )
+
+    event = build_event(item)
+
+    assert not any(component.name == "VALARM" for component in event.subcomponents)

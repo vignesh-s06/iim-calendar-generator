@@ -12,7 +12,7 @@ from src.validator import validate_calendar
 def test_validate_calendar_passes_complete_events() -> None:
     """Pass validation for complete events with location and reminder."""
     calendar = build_calendar(
-        [ScheduleItem("SCM(S2)", datetime(2026, 7, 17, 9, 0), datetime(2026, 7, 17, 10, 30))],
+        [ScheduleItem("CFFM", datetime(2026, 7, 17, 9, 0), datetime(2026, 7, 17, 10, 30))],
         location="NAB G08",
         reminder_minutes=15,
     )
@@ -52,7 +52,7 @@ def test_validate_calendar_counts_missing_fields_and_invalid_ranges() -> None:
 
 def test_validate_calendar_counts_duplicate_events() -> None:
     """Report duplicate events with matching summary, start, end, and location."""
-    item = ScheduleItem("SCM(S2)", datetime(2026, 7, 17, 9, 0), datetime(2026, 7, 17, 10, 30))
+    item = ScheduleItem("CFFM", datetime(2026, 7, 17, 9, 0), datetime(2026, 7, 17, 10, 30))
     calendar = build_calendar([item, item], location="NAB G08", reminder_minutes=15)
 
     report = validate_calendar(calendar)
