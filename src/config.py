@@ -28,6 +28,7 @@ INPUT_FILENAME: Path = Path("input/schedule.pdf")
 OUTPUT_FILENAME: Path = Path("output/iim-calendar.ics")
 
 DATE_FORMAT: str = "%d-%b-%y"
+DATE_FORMATS: tuple[str, ...] = ("%d-%b-%y", "%Y-%m-%d %H:%M:%S")
 TIMETABLE_END_MARKER: str = "Course Name"
 IGNORED_SESSION_TOKENS: frozenset[str] = frozenset({"hrs", "venue", "date", "day"})
 

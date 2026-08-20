@@ -23,6 +23,23 @@ def test_parse_schedule_text_extracts_sessions_from_timetable_rows() -> None:
     assert items[2].start == datetime(2026, 7, 18, 9, 0)
 
 
+def test_parse_schedule_text_extracts_sessions_from_timestamp_rows() -> None:
+    """Parse session entries from PDFs that extract dates as timestamps."""
+    text = (
+        "IIM Shillong - Term III Schedule "
+        "2026-07-17 00:00:00 Friday SCM(S2) GTBL(S2) "
+        "2026-07-18 00:00:00 Saturday BIA PM "
+        "Course Name Course Code Area Credits/Sessions"
+    )
+
+    items = parse_schedule_text(text)
+
+    assert [item.title for item in items] == ["SCM(S2)", "GTBL(S2)", "BIA", "PM"]
+    assert items[0].start == datetime(2026, 7, 17, 9, 0)
+    assert items[0].end == datetime(2026, 7, 17, 10, 30)
+    assert items[2].start == datetime(2026, 7, 18, 9, 0)
+
+
 def test_parse_schedule_text_ignores_empty_days() -> None:
     """Return no events for timetable rows without sessions."""
     text = "30-Aug-26Sunday31-Aug-26Monday End Term Course Name"

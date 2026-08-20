@@ -9,7 +9,7 @@ from src.config import IGNORED_SESSION_TOKENS, TIMETABLE_END_MARKER, TIME_SLOTS
 from src.utils import ScheduleItem, combine_date_and_time, parse_schedule_date
 
 
-DATE_PATTERN = re.compile(r"\d{1,2}-[A-Za-z]{3}-\d{2}")
+DATE_PATTERN = re.compile(r"\d{1,2}-[A-Za-z]{3}-\d{2}|\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}")
 WEEKDAY_PATTERN = re.compile(
     r"^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*",
     re.IGNORECASE,

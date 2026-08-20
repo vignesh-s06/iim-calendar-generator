@@ -10,6 +10,11 @@ def test_parse_schedule_date() -> None:
     assert parse_schedule_date("17-Jul-26") == date(2026, 7, 17)
 
 
+def test_parse_schedule_date_from_timestamp() -> None:
+    """Parse the timestamp date format produced by some PDFs."""
+    assert parse_schedule_date("2026-07-17 00:00:00") == date(2026, 7, 17)
+
+
 def test_combine_date_and_time() -> None:
     """Combine separate timetable date and time values."""
     assert combine_date_and_time(date(2026, 7, 17), "09:00") == datetime(2026, 7, 17, 9, 0)

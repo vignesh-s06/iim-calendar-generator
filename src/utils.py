@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime, time
 
-from src.config import DATE_FORMAT
+from src.config import DATE_FORMATS
 
 
 @dataclass(frozen=True)
@@ -17,7 +17,13 @@ class ScheduleItem:
 
 def parse_schedule_date(value: str) -> date:
     """Parse a schedule date from the timetable date format."""
-    return datetime.strptime(value, DATE_FORMAT).date()
+    for date_format in DATE_FORMATS:
+        try:
+            return datetime.strptime(value, date_format).date()
+        except ValueError:
+            continue
+
+    raise ValueError(f"Unsupported schedule date format: {value}")
 
 
 def combine_date_and_time(schedule_date: date, value: str) -> datetime:
