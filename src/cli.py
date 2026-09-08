@@ -11,7 +11,7 @@ from pypdf.errors import PdfReadError
 
 from src.calendar_builder import build_calendar
 from src.config import CALENDAR_NAME, INPUT_FILENAME, LOCATION, OUTPUT_FILENAME, REMINDER_MINUTES, TIMEZONE
-from src.parser import parse_pdf_schedule
+from src.parser import parse_schedule
 from src.validator import CalendarValidationError, ValidationReport, validate_calendar_file
 
 
@@ -54,6 +54,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     except ZoneInfoNotFoundError:
         LOGGER.error("Invalid timezone: %s", args.timezone)
         return EXIT_ERROR
+    except ValueError as error:
+        LOGGER.error("Invalid timetable: %s", error)
+        return EXIT_ERROR
 
     return EXIT_SUCCESS
 
@@ -65,7 +68,7 @@ def configure_logging() -> None:
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Parse CLI arguments for calendar generation."""
-    parser = argparse.ArgumentParser(description="Generate an ICS calendar from an IIM schedule PDF.")
+    parser = argparse.ArgumentParser(description="Generate an ICS calendar from an IIM Excel or PDF schedule.")
     parser.add_argument(
         "pdf",
         nargs="?",
@@ -77,7 +80,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         dest="input",
         default=None,
         type=Path,
-        help=f"Path to the schedule PDF. Default: {INPUT_FILENAME}",
+        help=f"Path to the schedule (.xlsx or .pdf). Default: {INPUT_FILENAME}",
     )
     parser.add_argument(
         "--output",
@@ -123,15 +126,15 @@ def generate_calendar(args: argparse.Namespace) -> None:
     validate_input_path(args.input)
     validate_output_path(args.output)
 
-    LOGGER.info("Reading PDF...")
+    LOGGER.info("Reading timetable...")
     LOGGER.info("")
     LOGGER.info("Parsing timetable...")
-    schedule_items = parse_pdf_schedule(args.input)
+    schedule_items = parse_schedule(args.input)
     if not schedule_items:
-        raise CalendarGenerationError("Unable to parse timetable: no classes found in the PDF.")
+        raise CalendarGenerationError("Unable to parse timetable: no events found in the input.")
 
     LOGGER.info("")
-    LOGGER.info("Found %s classes", len(schedule_items))
+    LOGGER.info("Found %s events", len(schedule_items))
     LOGGER.info("")
     LOGGER.info("Generating calendar...")
     calendar = build_calendar(
@@ -190,12 +193,12 @@ def log_validation_report(report: ValidationReport) -> None:
 
 
 def validate_input_path(input_path: Path) -> None:
-    """Validate the input PDF path before parsing."""
+    """Validate the input timetable path before parsing."""
     if not input_path.exists():
-        raise CalendarGenerationError(f"Missing PDF: {input_path}")
+        raise CalendarGenerationError(f"Missing timetable: {input_path}")
 
     if not input_path.is_file():
-        raise CalendarGenerationError(f"Missing PDF: {input_path} is not a file")
+        raise CalendarGenerationError(f"Missing timetable: {input_path} is not a file")
 
 
 def validate_output_path(output_path: Path) -> None:

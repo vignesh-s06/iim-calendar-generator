@@ -1,6 +1,6 @@
 # IIM Calendar Generator
 
-Generate an `.ics` calendar file from an IIM timetable PDF.
+Generate an `.ics` calendar file from an IIM Excel or PDF timetable.
 
 ## Project Structure
 
@@ -11,7 +11,7 @@ iim-calendar-generator/
 |       |-- ci.yml
 |       `-- deploy-pages.yml
 |-- input/
-|   `-- schedule.pdf
+|   `-- schedule.xlsx
 |-- output/
 |   |-- .gitkeep
 |   `-- iim-calendar.ics
@@ -30,6 +30,16 @@ iim-calendar-generator/
 `-- LICENSE
 ```
 
+## Current timetable
+
+The default source is `input/schedule.xlsx`, copied from `Class Schedule Term - IV PGPEx (2026-27).xlsx`. It replaces the previous timetable; generation overwrites the calendar rather than appending events.
+
+Only the visible `Class Schedule PGPEx` worksheet is used. Hidden legacy schedules and the course catalogue are excluded. Classes keep the times printed in their column headers, including gaps between classes. Slash-separated subjects create separate events at the same time; empty slash placeholders are ignored.
+
+Merged blocks spanning every time slot are all-day entries. Holidays retain their full names, and the 30 November?5 December exam period is one multi-day entry because individual exam times are not specified. Every entry receives a reminder; for all-day entries, the reminder is relative to midnight at the start of the entry.
+
+PDF input remains supported with `--input path/to/timetable.pdf`.
+
 ## Setup
 
 ```bash
@@ -45,7 +55,7 @@ python generate_calendar.py
 By default, the script reads:
 
 ```text
-input/schedule.pdf
+input/schedule.xlsx
 ```
 
 and writes:
@@ -57,13 +67,13 @@ output/iim-calendar.ics
 You can also provide custom paths:
 
 ```bash
-python generate_calendar.py --input input/schedule.pdf --output output/custom-calendar.ics
+python generate_calendar.py --input input/schedule.xlsx --output output/custom-calendar.ics
 ```
 
 CLI options:
 
 ```text
---input          Path to the schedule PDF
+--input          Path to the schedule (.xlsx or .pdf)
 --output         Path for the generated ICS file
 --calendar-name  Calendar name shown in calendar apps
 --location       Location added to each event
@@ -83,7 +93,7 @@ python generate_calendar.py --location "NAB G08" --timezone Asia/Kolkata --remin
 ```
 
 ```bash
-python generate_calendar.py --input input/schedule.pdf --output output/iim-calendar.ics
+python generate_calendar.py --input input/schedule.xlsx --output output/iim-calendar.ics
 ```
 
 Validate the generated calendar:
@@ -98,25 +108,15 @@ Validate a custom output file:
 python generate_calendar.py --validate --output output/custom-calendar.ics
 ```
 
-## Reminder Subjects
+## Timezone
 
-Reminders are attached only for subjects listed in `REMINDER_SUBJECTS` in `src/config.py`.
+Timetable class times default to `Asia/Kolkata` (India time). Timed events are stored as UTC instants in the ICS file so calendar apps can display the correct equivalent in their selected timezone. Holidays and the exam period remain date-only all-day entries. Use `--timezone` to override the source timetable timezone.
 
-To change which subjects receive reminders, edit:
+## Reminders
 
-```python
-REMINDER_SUBJECTS = frozenset(
-    {
-        "CFFM",
-        "CS(S2)",
-        "DMV",
-        "GTBL(S2)",
-        "MHCGH",
-    }
-)
-```
+Every generated event receives a `VALARM` reminder, 15 minutes before its start by default. There is no subject filter.
 
-All subjects still generate calendar events. Subjects not listed in `REMINDER_SUBJECTS` are generated without `VALARM` reminders.
+Use `--reminder 30` to change the reminder to 30 minutes before each event. Setting `REMINDER_MINUTES` to `None` in `src/config.py` disables reminders globally.
 
 ## Testing
 
@@ -126,7 +126,7 @@ Install the project requirements, then run:
 pytest
 ```
 
-The test suite includes unit tests for the parser, calendar builder, and utilities, plus an integration test that generates `output/iim-calendar.ics` from `input/schedule.pdf`.
+The test suite includes unit tests for the parser, calendar builder, and utilities, plus an integration test that generates `output/iim-calendar.ics` from `input/schedule.xlsx`.
 
 ## GitHub Pages Deployment
 
@@ -211,8 +211,8 @@ Google Calendar controls refresh timing and may cache subscribed calendars for s
 
 To publish a new timetable:
 
-1. Replace `input/schedule.pdf` with the latest PDF.
+1. Replace `input/schedule.xlsx` with the latest workbook.
 2. Run `python generate_calendar.py` locally if you want to preview the output.
 3. Run `python generate_calendar.py --validate` locally if you want to validate the generated file.
-4. Commit and push the updated PDF to the `main` branch.
+4. Commit and push the updated workbook to the `main` branch.
 5. GitHub Actions regenerates and republishes `iim-calendar.ics` automatically.

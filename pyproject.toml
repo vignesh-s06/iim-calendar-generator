@@ -5,11 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "iim-calendar-generator"
 version = "0.1.0"
-description = "Generate an ICS calendar file from an IIM timetable PDF."
+description = "Generate an ICS calendar file from an IIM Excel or PDF timetable."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pypdf>=4.0.0",
+    "openpyxl>=3.1.0",
+    "tzdata>=2024.1",
     "icalendar>=5.0.0",
     "python-dateutil>=2.8.2",
 ]

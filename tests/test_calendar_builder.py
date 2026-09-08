@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
+from zoneinfo import ZoneInfo
 
 from icalendar import Calendar
 
@@ -21,8 +22,8 @@ def test_build_event_creates_calendar_event() -> None:
 
     assert event.name == "VEVENT"
     assert str(event.get("summary")) == "SCM(S2)"
-    assert event.decoded("dtstart") == datetime(2026, 7, 17, 9, 0)
-    assert event.decoded("dtend") == datetime(2026, 7, 17, 10, 30)
+    assert event.decoded("dtstart") == datetime(2026, 7, 17, 9, 0, tzinfo=ZoneInfo("Asia/Kolkata"))
+    assert event.decoded("dtend") == datetime(2026, 7, 17, 10, 30, tzinfo=ZoneInfo("Asia/Kolkata"))
 
 
 def test_build_calendar_adds_events_and_name() -> None:
@@ -40,8 +41,8 @@ def test_build_calendar_adds_events_and_name() -> None:
     assert len(events) == 2
 
 
-def test_build_event_adds_alarm_for_reminder_subject() -> None:
-    """Attach a VALARM when the subject is configured for reminders."""
+def test_build_event_adds_alarm_for_subject() -> None:
+    """Attach a VALARM to a subject event."""
     item = ScheduleItem(
         title="CFFM",
         start=datetime(2026, 7, 17, 9, 0),
@@ -53,8 +54,8 @@ def test_build_event_adds_alarm_for_reminder_subject() -> None:
     assert any(component.name == "VALARM" for component in event.subcomponents)
 
 
-def test_build_event_skips_alarm_for_non_reminder_subject() -> None:
-    """Skip VALARM when the subject is not configured for reminders."""
+def test_build_event_adds_alarm_for_previously_excluded_subject() -> None:
+    """Attach a reminder even for subjects outside the former allowlist."""
     item = ScheduleItem(
         title="SCM(S2)",
         start=datetime(2026, 7, 17, 9, 0),
@@ -63,4 +64,18 @@ def test_build_event_skips_alarm_for_non_reminder_subject() -> None:
 
     event = build_event(item)
 
-    assert not any(component.name == "VALARM" for component in event.subcomponents)
+    alarms = [component for component in event.subcomponents if component.name == "VALARM"]
+    assert len(alarms) == 1
+    assert alarms[0].decoded("trigger").total_seconds() == -15 * 60
+
+
+def test_timezone_survives_ics_roundtrip_as_an_unambiguous_instant():
+    item = ScheduleItem("CM", datetime(2026, 9, 8, 15), datetime(2026, 9, 8, 16, 30))
+    serialized = build_calendar([item]).to_ical()
+    assert b"DTSTART:20260908T093000Z" in serialized
+    calendar = Calendar.from_ical(serialized)
+    assert str(calendar["x-wr-timezone"]) == "Asia/Kolkata"
+    event = calendar.walk("VEVENT")[0]
+    assert event.decoded("dtstart") == datetime(2026, 9, 8, 9, 30, tzinfo=UTC)
+    assert event.decoded("dtstart").astimezone(ZoneInfo("Asia/Kolkata")).hour == 15
+    assert event.decoded("dtstamp").utcoffset().total_seconds() == 0

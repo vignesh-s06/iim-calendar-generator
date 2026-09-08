@@ -11,8 +11,8 @@ class ScheduleItem:
     """A parsed class or schedule entry ready for calendar generation."""
 
     title: str
-    start: datetime
-    end: datetime
+    start: date | datetime
+    end: date | datetime
 
 
 def parse_schedule_date(value: str) -> date:

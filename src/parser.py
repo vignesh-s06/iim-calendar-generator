@@ -21,6 +21,17 @@ SESSION_PATTERN = re.compile(
 )
 
 
+def parse_schedule(path: Path) -> list[ScheduleItem]:
+    """Read the supported timetable source format."""
+    if path.suffix.lower() == ".xlsx":
+        from src.excel_parser import parse_excel_schedule
+
+        return parse_excel_schedule(path)
+    if path.suffix.lower() == ".pdf":
+        return parse_pdf_schedule(path)
+    raise ValueError("Unsupported timetable format; use .xlsx or .pdf")
+
+
 def parse_pdf_schedule(pdf_path: Path) -> list[ScheduleItem]:
     """Parse schedule events from a PDF file."""
     return parse_schedule_text(extract_text(pdf_path))

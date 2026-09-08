@@ -94,7 +94,15 @@ def validate_calendar(calendar: Calendar) -> ValidationReport:
             invalid_dates += 1
             continue
 
-        if not isinstance(start, datetime) or not isinstance(end, datetime):
+        if not isinstance(start, date) or not isinstance(end, date):
+            invalid_dates += 1
+            continue
+
+        if isinstance(start, datetime) != isinstance(end, datetime):
+            invalid_dates += 1
+            continue
+
+        if isinstance(start, datetime) and ((start.utcoffset() is None) != (end.utcoffset() is None)):
             invalid_dates += 1
             continue
 

@@ -6,25 +6,16 @@ from typing import TypeAlias
 
 TimeSlot: TypeAlias = tuple[str, str]
 
-CALENDAR_NAME: str = "IIM Schedule"
+CALENDAR_NAME: str = "IIM PGPEx Term IV (2026-27)"
 CALENDAR_PRODID: str = "-//IIM Calendar Generator//EN"
 CALENDAR_VERSION: str = "2.0"
 LOCATION: str = "NAB G08"
 REMINDER_MINUTES: int | None = 15
-REMINDER_SUBJECTS: frozenset[str] = frozenset(
-    {
-        "CFFM",
-        "CS(S2)",
-        "DMV",
-        "GTBL(S2)",
-        "MHCGH",
-    }
-)
-TIMEZONE: str | None = None
+TIMEZONE: str | None = "Asia/Kolkata"
 REMINDER_ACTION: str = "DISPLAY"
 REMINDER_DESCRIPTION: str = "Reminder"
 
-INPUT_FILENAME: Path = Path("input/schedule.pdf")
+INPUT_FILENAME: Path = Path("input/schedule.xlsx")
 OUTPUT_FILENAME: Path = Path("output/iim-calendar.ics")
 
 DATE_FORMAT: str = "%d-%b-%y"
