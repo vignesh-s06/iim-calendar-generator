@@ -24,7 +24,7 @@ def test_current_workbook_contains_only_term_iv_with_complete_course_counts():
     assert Counter(item.title for item in classes) == {
         "CM": 20, "SOM": 20, "MI": 20, "PABF": 20,
         "ESLCA": 20, "MACR(S2)": 20, "SSLT(S2)": 20,
-        "SM": 20, "OR": 10, "LCM": 10,
+        "SMKTG": 20, "OR": 10, "LCM": 10,
     }
     assert min(item.start for item in classes) == datetime(2026, 9, 8, 15, 0)
     assert max(item.end for item in classes) == datetime(2026, 11, 27, 14, 0)
@@ -50,3 +50,21 @@ def test_merged_holidays_and_exam_period_survive_calendar_roundtrip():
 def test_unsupported_input_format_is_rejected():
     with pytest.raises(ValueError, match="Unsupported timetable format"):
         parse_schedule(INPUT_FILENAME.with_suffix(".csv"))
+
+
+@pytest.mark.parametrize("subject, month, day, hour, minute", [
+    ("OR", 9, 9, 10, 45),
+    ("LCM", 9, 29, 10, 45),
+    ("OR", 10, 6, 15, 0),
+    ("LCM", 10, 7, 9, 0),
+    ("LCM", 10, 14, 9, 0),
+    ("OR", 11, 5, 12, 30),
+])
+def test_revised_workbook_uses_rescheduled_class_times(subject, month, day, hour, minute):
+    from datetime import timedelta
+
+    items = [item for item in parse_schedule(INPUT_FILENAME)
+             if item.title == subject and item.start.date() == date(2026, month, day)]
+    assert len(items) == 1
+    assert items[0].start == datetime(2026, month, day, hour, minute)
+    assert items[0].end == items[0].start + timedelta(minutes=90)

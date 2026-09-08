@@ -32,7 +32,7 @@ iim-calendar-generator/
 
 ## Current timetable
 
-The default source is `input/schedule.xlsx`, copied from `Class Schedule Term - IV PGPEx (2026-27).xlsx`. It replaces the previous timetable; generation overwrites the calendar rather than appending events.
+The default source is `input/schedule.xlsx`, copied from `Class Schedule Term - IV PGPEx (2026-27)-1.xlsx`. It replaces the previous timetable; generation overwrites the calendar rather than appending events.
 
 Only the visible `Class Schedule PGPEx` worksheet is used. Hidden legacy schedules and the course catalogue are excluded. Classes keep the times printed in their column headers, including gaps between classes. Slash-separated subjects create separate events at the same time; empty slash placeholders are ignored.
 
