@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+from datetime import date, datetime
 from pathlib import Path
 from typing import Sequence
 from zoneinfo import ZoneInfoNotFoundError
@@ -10,7 +11,7 @@ from zoneinfo import ZoneInfoNotFoundError
 from pypdf.errors import PdfReadError
 
 from src.calendar_builder import build_calendar
-from src.config import CALENDAR_NAME, INPUT_FILENAME, LOCATION, OUTPUT_FILENAME, REMINDER_MINUTES, TIMEZONE
+from src.config import CALENDAR_NAME, INPUT_FILENAME, LOCATION, OUTPUT_FILENAME, REMINDER_MINUTES, START_DATE, TIMEZONE
 from src.parser import parse_schedule
 from src.validator import CalendarValidationError, ValidationReport, validate_calendar_file
 
@@ -115,6 +116,13 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help=f"Validate the generated calendar file. Default: {OUTPUT_FILENAME}",
     )
 
+    parser.add_argument(
+        "--start-date",
+        type=date.fromisoformat,
+        default=START_DATE,
+        help=f"Include events starting on or after this date (YYYY-MM-DD). Default: {START_DATE}",
+    )
+
     args = parser.parse_args(argv)
     args.input = args.input or args.pdf or INPUT_FILENAME
     return args
@@ -130,8 +138,13 @@ def generate_calendar(args: argparse.Namespace) -> None:
     LOGGER.info("")
     LOGGER.info("Parsing timetable...")
     schedule_items = parse_schedule(args.input)
+    schedule_items = [
+        item for item in schedule_items
+        if (item.start.date() if isinstance(item.start, datetime) else item.start) >= args.start_date
+    ]
+    LOGGER.info("Including events from %s onward", args.start_date)
     if not schedule_items:
-        raise CalendarGenerationError("Unable to parse timetable: no events found in the input.")
+        raise CalendarGenerationError("Unable to parse timetable: no events found on or after the selected start date.")
 
     LOGGER.info("")
     LOGGER.info("Found %s events", len(schedule_items))

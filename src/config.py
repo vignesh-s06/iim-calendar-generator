@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from typing import TypeAlias
 
@@ -14,6 +15,8 @@ REMINDER_MINUTES: int | None = 15
 TIMEZONE: str | None = "Asia/Kolkata"
 REMINDER_ACTION: str = "DISPLAY"
 REMINDER_DESCRIPTION: str = "Reminder"
+
+START_DATE: date = date(2026, 10, 12)
 
 INPUT_FILENAME: Path = Path("input/schedule.xlsx")
 OUTPUT_FILENAME: Path = Path("output/iim-calendar.ics")

@@ -23,8 +23,8 @@ def test_current_workbook_contains_only_term_iv_with_complete_course_counts():
     classes = [item for item in items if isinstance(item.start, datetime)]
     assert Counter(item.title for item in classes) == {
         "CM": 20, "SOM": 20, "MI": 20, "PABF": 20,
-        "ESLCA": 20, "MACR(S2)": 20, "SSLT(S2)": 20,
-        "SMKTG": 20, "OR": 10, "LCM": 10,
+        "ESLCA": 20, "MACR(S2)": 20, "SSLT(S2)": 19,
+        "SMKTG": 20, "OR": 11, "LCM": 10, "VbN": 10,
     }
     assert min(item.start for item in classes) == datetime(2026, 9, 8, 15, 0)
     assert max(item.end for item in classes) == datetime(2026, 11, 27, 14, 0)
@@ -41,7 +41,7 @@ def test_merged_holidays_and_exam_period_survive_calendar_roundtrip():
     calendar = Calendar.from_ical(build_calendar(items).to_ical())
     report = validate_calendar(calendar)
     assert report.passed
-    assert report.event_count == 188
+    assert report.event_count == 198
     exam = next(event for event in calendar.walk("VEVENT") if str(event["summary"]) == "END TERM EXAMINATION")
     assert exam.decoded("dtstart") == date(2026, 11, 30)
     assert exam.decoded("dtend") == date(2026, 12, 6)
@@ -54,7 +54,7 @@ def test_unsupported_input_format_is_rejected():
 
 @pytest.mark.parametrize("subject, month, day, hour, minute", [
     ("OR", 9, 9, 10, 45),
-    ("LCM", 9, 29, 10, 45),
+    ("LCM", 9, 30, 16, 45),
     ("OR", 10, 6, 15, 0),
     ("LCM", 10, 7, 9, 0),
     ("LCM", 10, 14, 9, 0),

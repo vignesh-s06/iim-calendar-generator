@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Current POS Bill CSS Stress Preview</title>
+    <style>
+      @page { size: 80mm auto; margin: 0mm; }
+      html, body { margin: 0; padding: 0; }
+      * { box-sizing: border-box; }
+      html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body {
+        width: 80mm;
+        max-width: 80mm;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        font-family: ui-monospace, "Cascadia Mono", "Consolas", "Courier New", Courier, monospace;
+        color: #000;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: geometricPrecision;
+        background: #f1f5f9;
+      }
+      .wrap {
+        width: 68mm;
+        max-width: 68mm;
+        margin: 0 auto;
+        padding: 0.8mm 1.5mm;
+        overflow: hidden;
+        font-size: 12.5px;
+        line-height: 1.22;
+        letter-spacing: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        background: #fff;
+        min-height: 100vh;
+      }
+      .center { text-align: center; }
+      .store-name { font-size: 13px; font-weight: 800; margin-top: 1px; }
+      .store-meta { margin-top: 0px; color: #000; font-weight: 500; font-size: 12px; }
+      .title { margin-top: 2px; padding-top: 1px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; }
+      .meta { margin-top: 4px; display: grid; gap: 2px; font-weight: 600; font-size: 12px; }
+      .meta .one-line { display: flex; align-items: baseline; gap: 4px; min-width: 0; white-space: normal; }
+      .meta .one-line .k { font-weight: 800; font-size: 12px; letter-spacing: 0.02em; }
+      .meta .one-line .name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+      .meta .one-line .phone {
+        flex: 0 1 auto;
+        max-width: 45%;
+        font-weight: 800;
+        text-align: right;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .dot { border-top: 1px dashed #000; margin: 4px 0; }
+      .items-table, .tax-table {
+        width: 100%;
+        max-width: 100%;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+        table-layout: fixed;
+        overflow: hidden;
+      }
+      .items-table th, .items-table td, .tax-table th, .tax-table td {
+        padding: 3px 0;
+        vertical-align: top;
+        font-size: 12px;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .items-table thead th {
+        font-weight: 800;
+        border-top: none;
+        border-bottom: none;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.1;
+      }
+      .items-table thead tr:last-child th { border-bottom: 1px solid #111827; }
+      .itemCell { display: flex; flex-direction: column; gap: 0px; min-width: 0; }
+      .itemCell .ean {
+        font-weight: 800;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .itemCell .sizeBrand {
+        font-weight: 800;
+        font-size: 11px;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .itemCell .desc {
+        font-weight: 700;
+        font-size: 11px;
+        line-height: 1.12;
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: clip;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+      .col-item { width: 35%; text-align: left; }
+      .col-num { text-align: right; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+      .col-price { width: 20%; text-align: right; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+      .col-disc { width: 17%; text-align: right; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+      .col-qty { width: 10%; text-align: right; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+      .col-net { width: 18%; text-align: right; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+      .items-table th.col-item, .items-table td.col-item { padding-left: 2px; padding-right: 6px; }
+      .items-table th.col-price, .items-table th.col-disc, .items-table th.col-qty, .items-table th.col-net,
+      .items-table td.col-price, .items-table td.col-disc, .items-table td.col-qty, .items-table td.col-net,
+      .items-table th.col-num, .items-table td.col-num { padding-left: 6px; padding-right: 2px; }
+      .net { font-weight: 800; }
+      .section-title { text-align: center; font-weight: 800; margin: 4px 0; }
+      .tax-table thead th {
+        font-weight: 800;
+        border-top: none;
+        border-bottom: 1px solid #111827;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.1;
+      }
+      .tax-table td, .tax-table th { padding: 2px 0; font-size: 10.8px; }
+      .tax-table { table-layout: fixed; }
+      .tax-table th, .tax-table td { overflow: hidden; text-overflow: clip; padding-left: 1px; padding-right: 1px; }
+      .tax-table th:first-child, .tax-table td:first-child { text-align: left; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+      .tax-table thead th.col-num { text-align: right; }
+      .tax-table td.col-num { text-align: right; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+      .tax-table th:nth-child(1), .tax-table td:nth-child(1) { width: 14%; }
+      .tax-table th:nth-child(2), .tax-table td:nth-child(2) { width: 22%; }
+      .tax-table th:nth-child(3), .tax-table td:nth-child(3) { width: 8%; }
+      .tax-table th:nth-child(4), .tax-table td:nth-child(4) { width: 18%; }
+      .tax-table th:nth-child(5), .tax-table td:nth-child(5) { width: 18%; }
+      .tax-table th:nth-child(6), .tax-table td:nth-child(6) { width: 20%; }
+      .tax-total td { border-top: 1px solid #111827; padding-top: 4px; }
+      .totals { margin-top: 10px; padding-top: 8px; border-top: 1px solid #111827; }
+      .row { display: flex; justify-content: space-between; margin: 2px 0; gap: 8px; align-items: baseline; }
+      .k, .v { font-weight: 700; font-size: 12px; }
+      .row .k { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .row .v {
+        flex: 0 1 auto;
+        max-width: 48%;
+        text-align: right;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        font-variant-numeric: tabular-nums;
+      }
+      .grand .k, .grand .v { font-size: 13.4px; font-weight: 900; }
+      .grand { border-top: 1px solid #000; padding-top: 8px; margin-top: 8px; }
+      .thanks { text-align: center; margin-top: 8px; font-weight: 800; font-size: 12px; }
+      .policy { margin-top: 10px; padding-top: 8px; border-top: 1px solid #111827; }
+      .policy-title { text-align: center; font-weight: 900; font-size: 11.6px; letter-spacing: 0.02em; margin-bottom: 6px; }
+      .policy-text { font-size: 11px; line-height: 1.2; font-weight: 600; padding: 0 2px; display: grid; gap: 2px; }
+      .policy-text > div { display: flex; gap: 6px; }
+      .policy-text > div::before { content: "*"; flex: 0 0 auto; transform: translateY(-0.5px); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="center">
+        <div class="store-name">Fashion Store Private Limited</div>
+        <div class="store-meta">Indiranagar Flagship Outlet</div>
+        <div class="store-meta">12, 100 Feet Road, Bengaluru</div>
+        <div class="store-meta">Bengaluru - Karnataka - 560038</div>
+        <div class="store-meta">9999999999</div>
+        <div class="store-meta">GSTIN: 29ABCDE1234F1Z5</div>
+        <div class="title">TAX INVOICE</div>
+      </div>
+
+      <div class="meta">
+        <div class="one-line">
+          <span class="k">DAT</span>
+          <span class="name">06-10-2026</span>
+          <span class="k">INV</span>
+          <span class="phone">POS-000123456</span>
+        </div>
+        <div class="one-line">
+          <span class="k">CUS</span>
+          <span class="name">Large Number Test Customer</span>
+          <span class="k">PHN</span>
+          <span class="phone">9876543210</span>
+        </div>
+      </div>
+
+      <div class="dot"></div>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th class="col-item">Item</th>
+            <th class="col-price">Price</th>
+            <th class="col-disc">Disc</th>
+            <th class="col-qty">Qty</th>
+            <th class="col-net">Net</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-item">
+              <div class="itemCell">
+                <div class="ean">8907237490265</div>
+                <div class="sizeBrand">M - PATRAH</div>
+                <div class="desc">TWO TONE SLEEVELESS DRESS</div>
+              </div>
+            </td>
+            <td class="col-price">&#8377;5400.00</td>
+            <td class="col-disc">&#8377;0.00</td>
+            <td class="col-qty">1</td>
+            <td class="col-net net">&#8377;5400.00</td>
+          </tr>
+          <tr>
+            <td class="col-item">
+              <div class="itemCell">
+                <div class="ean">8907237490272</div>
+                <div class="sizeBrand">L - PATRAH</div>
+                <div class="desc">PREMIUM LINEN JACKET WITH LONG NAME</div>
+              </div>
+            </td>
+            <td class="col-price">&#8377;12500.00</td>
+            <td class="col-disc">&#8377;1500.00</td>
+            <td class="col-qty">2</td>
+            <td class="col-net net">&#8377;23500.00</td>
+          </tr>
+          <tr>
+            <td class="col-item">
+              <div class="itemCell">
+                <div class="ean">8907237490289</div>
+                <div class="sizeBrand">XL - VERYLONGBRAND</div>
+                <div class="desc">LIMITED EDITION EMBROIDERED KURTA SET</div>
+              </div>
+            </td>
+            <td class="col-price">&#8377;99999.00</td>
+            <td class="col-disc">&#8377;9999.00</td>
+            <td class="col-qty">11</td>
+            <td class="col-net net">&#8377;990000.00</td>
+          </tr>
+          <tr>
+            <td class="col-item">
+              <div class="itemCell">
+                <div class="ean">890723749029612345678</div>
+                <div class="sizeBrand">XXL - TESTBRANDNAME</div>
+                <div class="desc">VERY EXPENSIVE PRODUCT WITH HUGE DISCOUNT</div>
+              </div>
+            </td>
+            <td class="col-price">&#8377;123456.78</td>
+            <td class="col-disc">&#8377;54321.99</td>
+            <td class="col-qty">99</td>
+            <td class="col-net net">&#8377;9999999.99</td>
+          </tr>
+          <tr>
+            <td class="col-item">
+              <div class="itemCell">
+                <div class="ean">8907237490302</div>
+                <div class="sizeBrand">S - GNATIVE</div>
+                <div class="desc">REGULAR COTTON TOP</div>
+              </div>
+            </td>
+            <td class="col-price">&#8377;2499.00</td>
+            <td class="col-disc">&#8377;249.90</td>
+            <td class="col-qty">4</td>
+            <td class="col-net net">&#8377;9746.10</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="dot"></div>
+
+      <div class="section-title">GST Summary</div>
+      <table class="tax-table">
+        <thead>
+          <tr>
+            <th>HSN Code</th>
+            <th class="col-num">Taxable Value</th>
+            <th class="col-num">GST %</th>
+            <th class="col-num">CGST</th>
+            <th class="col-num">SGST</th>
+            <th class="col-num">Total Tax</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>6109</td>
+            <td class="col-num">&#8377;999999.99</td>
+            <td class="col-num">12.0</td>
+            <td class="col-num">&#8377;59999.99</td>
+            <td class="col-num">&#8377;59999.99</td>
+            <td class="col-num">&#8377;119999.98</td>
+          </tr>
+          <tr class="tax-total">
+            <td><b>Total</b></td>
+            <td class="col-num"><b>&#8377;999999.99</b></td>
+            <td class="col-num"></td>
+            <td class="col-num"><b>&#8377;59999.99</b></td>
+            <td class="col-num"><b>&#8377;59999.99</b></td>
+            <td class="col-num"><b>&#8377;119999.98</b></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <div class="row"><div class="k">Total Quantity</div><div class="v">117</div></div>
+        <div class="row"><div class="k">SGST</div><div class="v">&#8377;59999.99</div></div>
+        <div class="row"><div class="k">CGST</div><div class="v">&#8377;59999.99</div></div>
+        <div class="row"><div class="k">Total Discount</div><div class="v">&#8377;66070.89</div></div>
+        <div class="row"><div class="k">Coupon Discount</div><div class="v">&#8377;12345.67</div></div>
+        <div class="row"><div class="k">Gift Voucher</div><div class="v">&#8377;5000.00</div></div>
+        <div class="row grand"><div class="k">Grand Total</div><div class="v">&#8377;10028646.09</div></div>
+      </div>
+
+      <div class="thanks">Thank you, please visit again.</div>
+
+      <div class="policy">
+        <div class="policy-title">Return and Exchange Policy</div>
+        <div class="policy-text">
+          <div>7 days exchange with original bill.</div>
+          <div>Personal Care/Food: only for manufacturing defects.</div>
+          <div>Apparels/Home: items must be saleable with tags intact.</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

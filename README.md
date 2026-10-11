@@ -32,7 +32,9 @@ iim-calendar-generator/
 
 ## Current timetable
 
-The default source is `input/schedule.xlsx`, copied from `Class Schedule Term - IV PGPEx (2026-27)-1.xlsx`. It replaces the previous timetable; generation overwrites the calendar rather than appending events.
+The default source is `input/schedule.xlsx`, copied from `Class Schedule Term - IV PGPEx (2026-27)-2.xlsx`. It replaces the previous timetable; generation overwrites the calendar rather than appending events.
+
+Generation includes only events starting on or after **12 October 2026**, including that day. The source workbook is preserved, but earlier rows do not appear in the calendar. This cutoff also applies to automatic deployment. Change it with `--start-date YYYY-MM-DD`.
 
 Only the visible `Class Schedule PGPEx` worksheet is used. Hidden legacy schedules and the course catalogue are excluded. Classes keep the times printed in their column headers, including gaps between classes. Slash-separated subjects create separate events at the same time; empty slash placeholders are ignored.
 
@@ -79,6 +81,7 @@ CLI options:
 --location       Location added to each event
 --timezone       Timezone, such as Asia/Kolkata
 --reminder       Reminder minutes before each event
+--start-date     Inclusive start date; default 2026-10-12
 --validate       Validate the generated calendar file without modifying it
 ```
 
@@ -126,7 +129,7 @@ Install the project requirements, then run:
 pytest
 ```
 
-The test suite includes unit tests for the parser, calendar builder, and utilities, plus an integration test that generates `output/iim-calendar.ics` from `input/schedule.xlsx`.
+The test suite includes unit tests for the parser, calendar builder, and utilities, plus an integration test that checks the CLI-generated calendar in a temporary directory using `input/schedule.xlsx`.
 
 ## GitHub Pages Deployment
 
